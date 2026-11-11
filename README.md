@@ -28,4 +28,4 @@ npm run build
 
 - Viewmodel, gauntlet, and sword are procedural geometry (three.js / React Three Fiber).
 - On-screen labels are French. Source comments and this document are English.
-- No accounts or database. Auth helpers in `src/lib` are platform scaffolding and are unused by the scene.
+A static copy for GitHub Pages lives in `docs/` (`index.html` + `game.js`). It does not need the TanStack server.
