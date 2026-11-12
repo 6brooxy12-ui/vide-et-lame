@@ -6,10 +6,10 @@ const RELEASE = 0.475;
 const RECOVERY = 0.8;
 const TOTAL = WINDUP + RELEASE + RECOVERY;
 
-const IDLE = { x: 0.32, y: -0.38, z: -0.62, rx: -0.55, ry: 0.42, rz: -0.15 };
-const WIND = { x: 0.48, y: -0.12, z: -0.38, rx: 0.85, ry: -0.95, rz: 0.95 };
-const STRIKE = { x: -0.22, y: -0.48, z: -0.78, rx: -0.15, ry: 1.25, rz: -1.35 };
-const FOLLOW = { x: -0.08, y: -0.55, z: -0.55, rx: 0.15, ry: 0.7, rz: -0.55 };
+const IDLE = { x: 0.18, y: -0.32, z: -0.48, rx: -0.2, ry: 0.18, rz: -0.08 };
+const WIND = { x: 0.42, y: -0.05, z: -0.32, rx: 0.72, ry: -0.85, rz: 0.7 };
+const STRIKE = { x: -0.28, y: -0.36, z: -0.62, rx: -0.95, ry: 0.55, rz: -1.15 };
+const FOLLOW = { x: -0.12, y: -0.48, z: -0.42, rx: -0.35, ry: 0.35, rz: -0.45 };
 
 function lerpPose(a, b, t) {
   const s = t * t * (3 - 2 * t);
@@ -78,17 +78,22 @@ scene.add(camera);
 
 const loader = new GLTFLoader();
 loader.load("./models/gauntlet.glb", (gltf) => {
-  const hand = gltf.scene;
-  hand.position.set(0.02, -0.34, 0.04);
-  hand.rotation.set(0.55, Math.PI, 0.15);
-  hand.scale.setScalar(1.25);
-  rig.add(hand);
+  const lead = gltf.scene.clone(true);
+  lead.position.set(0.07, -0.02, 0.05);
+  lead.rotation.set(1.15, Math.PI, 0.35);
+  lead.scale.setScalar(1.65);
+  rig.add(lead);
+  const off = gltf.scene.clone(true);
+  off.position.set(0.05, -0.2, 0.07);
+  off.rotation.set(1.25, Math.PI * 0.92, 0.15);
+  off.scale.setScalar(1.45);
+  rig.add(off);
 });
 loader.load("./models/fantasy-sword.glb", (gltf) => {
   const sword = gltf.scene;
-  sword.position.set(0, 0.05, 0);
+  sword.position.set(0, 0.42, 0);
   sword.rotation.set(-Math.PI / 2, 0, 0);
-  sword.scale.setScalar(1.05);
+  sword.scale.setScalar(0.92);
   rig.add(sword);
 });
 

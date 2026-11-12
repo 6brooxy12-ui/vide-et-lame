@@ -1,5 +1,5 @@
 import { useGLTF } from "@react-three/drei";
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { setHud } from "./hud";
@@ -12,10 +12,10 @@ const TOTAL = WINDUP + RELEASE + RECOVERY;
 
 type Pose = { x: number; y: number; z: number; rx: number; ry: number; rz: number };
 
-const IDLE: Pose = { x: 0.32, y: -0.38, z: -0.62, rx: -0.55, ry: 0.42, rz: -0.15 };
-const WIND: Pose = { x: 0.48, y: -0.12, z: -0.38, rx: 0.85, ry: -0.95, rz: 0.95 };
-const STRIKE: Pose = { x: -0.22, y: -0.48, z: -0.78, rx: -0.15, ry: 1.25, rz: -1.35 };
-const FOLLOW: Pose = { x: -0.08, y: -0.55, z: -0.55, rx: 0.15, ry: 0.7, rz: -0.55 };
+const IDLE: Pose = { x: 0.18, y: -0.32, z: -0.48, rx: -0.2, ry: 0.18, rz: -0.08 };
+const WIND: Pose = { x: 0.42, y: -0.05, z: -0.32, rx: 0.72, ry: -0.85, rz: 0.7 };
+const STRIKE: Pose = { x: -0.28, y: -0.36, z: -0.62, rx: -0.95, ry: 0.55, rz: -1.15 };
+const FOLLOW: Pose = { x: -0.12, y: -0.48, z: -0.42, rx: -0.35, ry: 0.35, rz: -0.45 };
 
 function lerpPose(a: Pose, b: Pose, t: number): Pose {
   const s = t * t * (3 - 2 * t);
@@ -36,20 +36,18 @@ function easeOut(t: number) {
 function Viewmodel() {
   const sword = useGLTF("/models/fantasy-sword.glb");
   const hand = useGLTF("/models/gauntlet.glb");
+  const lead = useMemo(() => hand.scene.clone(true), [hand.scene]);
+  const off = useMemo(() => hand.scene.clone(true), [hand.scene]);
   return (
     <group>
       <primitive
-        object={hand.scene}
-        position={[0.02, -0.34, 0.04]}
-        rotation={[0.55, Math.PI, 0.15]}
-        scale={1.25}
-      />
-      <primitive
         object={sword.scene}
-        position={[0, 0.05, 0]}
+        position={[0, 0.42, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
-        scale={1.05}
+        scale={0.92}
       />
+      <primitive object={lead} position={[0.07, -0.02, 0.05]} rotation={[1.15, Math.PI, 0.35]} scale={1.65} />
+      <primitive object={off} position={[0.05, -0.2, 0.07]} rotation={[1.25, Math.PI * 0.92, 0.15]} scale={1.45} />
     </group>
   );
 }
