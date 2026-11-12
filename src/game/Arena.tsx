@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useGLTF } from "@react-three/drei";
+import { Suspense, useEffect, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { setHud } from "./hud";
@@ -32,56 +33,23 @@ function easeOut(t: number) {
   return 1 - (1 - t) * (1 - t);
 }
 
-function Sword() {
+function Viewmodel() {
+  const sword = useGLTF("/models/fantasy-sword.glb");
+  const hand = useGLTF("/models/gauntlet.glb");
   return (
     <group>
-      <mesh position={[0, 0.52, 0]} castShadow>
-        <boxGeometry args={[0.045, 0.92, 0.012]} />
-        <meshStandardMaterial color="#d7dbe2" metalness={0.92} roughness={0.22} />
-      </mesh>
-      <mesh position={[0, 0.52, 0.001]}>
-        <boxGeometry args={[0.012, 0.78, 0.014]} />
-        <meshStandardMaterial color="#8d939c" metalness={0.7} roughness={0.35} />
-      </mesh>
-      <mesh position={[0, 0.96, 0]}>
-        <boxGeometry args={[0.02, 0.06, 0.008]} />
-        <meshStandardMaterial color="#f2f4f7" metalness={1} roughness={0.15} />
-      </mesh>
-      <mesh position={[0, 0.06, 0]}>
-        <boxGeometry args={[0.28, 0.028, 0.04]} />
-        <meshStandardMaterial color="#6b1d1d" metalness={0.55} roughness={0.4} />
-      </mesh>
-      <mesh position={[0, 0.06, 0]}>
-        <boxGeometry args={[0.22, 0.012, 0.05]} />
-        <meshStandardMaterial color="#c9a36a" metalness={0.8} roughness={0.3} />
-      </mesh>
-      <mesh position={[0, -0.08, 0]}>
-        <cylinderGeometry args={[0.028, 0.032, 0.22, 10]} />
-        <meshStandardMaterial color="#3a2a1c" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, -0.2, 0]}>
-        <sphereGeometry args={[0.038, 12, 10]} />
-        <meshStandardMaterial color="#c9a36a" metalness={0.75} roughness={0.35} />
-      </mesh>
-    </group>
-  );
-}
-
-function Gauntlet() {
-  return (
-    <group position={[0, -0.28, 0.02]}>
-      <mesh>
-        <boxGeometry args={[0.12, 0.16, 0.1]} />
-        <meshStandardMaterial color="#c8c2b4" metalness={0.45} roughness={0.55} />
-      </mesh>
-      <mesh position={[0, -0.1, 0]}>
-        <boxGeometry args={[0.1, 0.08, 0.09]} />
-        <meshStandardMaterial color="#2a2a2e" roughness={0.7} />
-      </mesh>
-      <mesh position={[0.02, 0.04, 0.04]} rotation={[0.4, 0, 0.2]}>
-        <boxGeometry args={[0.05, 0.08, 0.05]} />
-        <meshStandardMaterial color="#b7b1a4" metalness={0.4} roughness={0.5} />
-      </mesh>
+      <primitive
+        object={hand.scene}
+        position={[0.02, -0.34, 0.04]}
+        rotation={[0.55, Math.PI, 0.15]}
+        scale={1.25}
+      />
+      <primitive
+        object={sword.scene}
+        position={[0, 0.05, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        scale={1.05}
+      />
     </group>
   );
 }
@@ -226,8 +194,9 @@ function Rig() {
 
   return (
     <group ref={root}>
-      <Gauntlet />
-      <Sword />
+      <Suspense fallback={null}>
+        <Viewmodel />
+      </Suspense>
     </group>
   );
 }
@@ -237,8 +206,8 @@ function World() {
     <>
       <color attach="background" args={["#0c0e12"]} />
       <fog attach="fog" args={["#0c0e12", 6, 28]} />
-      <ambientLight intensity={0.22} />
-      <directionalLight position={[4, 8, 2]} intensity={0.55} color="#f0e2c8" />
+      <ambientLight intensity={0.55} />
+      <directionalLight position={[4, 8, 2]} intensity={1.35} color="#f0e2c8" />
       <pointLight position={[-3.2, 1.1, -4]} intensity={6} distance={10} color="#ff6a2a" />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <planeGeometry args={[80, 80]} />

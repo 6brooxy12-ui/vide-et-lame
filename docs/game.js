@@ -1,4 +1,5 @@
 import * as THREE from "https://esm.sh/three@0.187.0";
+import { GLTFLoader } from "https://esm.sh/three@0.187.0/examples/jsm/loaders/GLTFLoader.js";
 
 const WINDUP = 0.225;
 const RELEASE = 0.475;
@@ -34,8 +35,8 @@ const camera = new THREE.PerspectiveCamera(90, 1, 0.05, 60);
 camera.position.set(0, 1.65, 0);
 camera.rotation.order = "YXZ";
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.22));
-const sun = new THREE.DirectionalLight(0xf0e2c8, 0.55);
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const sun = new THREE.DirectionalLight(0xf0e2c8, 1.35);
 sun.position.set(4, 8, 2);
 scene.add(sun);
 const fire = new THREE.PointLight(0xff6a2a, 6, 10);
@@ -71,40 +72,25 @@ const flame = new THREE.Mesh(
 flame.position.set(-3.2, 0.85, -4);
 scene.add(flame);
 
-const metal = new THREE.MeshStandardMaterial({ color: 0xd7dbe2, metalness: 0.92, roughness: 0.22 });
-const steel = new THREE.MeshStandardMaterial({ color: 0x8d939c, metalness: 0.7, roughness: 0.35 });
-const edge = new THREE.MeshStandardMaterial({ color: 0xf2f4f7, metalness: 1, roughness: 0.15 });
-const guard = new THREE.MeshStandardMaterial({ color: 0x6b1d1d, metalness: 0.55, roughness: 0.4 });
-const gold = new THREE.MeshStandardMaterial({ color: 0xc9a36a, metalness: 0.8, roughness: 0.3 });
-const leather = new THREE.MeshStandardMaterial({ color: 0x3a2a1c, roughness: 0.85 });
-const plate = new THREE.MeshStandardMaterial({ color: 0xc8c2b4, metalness: 0.45, roughness: 0.55 });
-const cloth = new THREE.MeshStandardMaterial({ color: 0x2a2a2e, roughness: 0.7 });
-
 const rig = new THREE.Group();
 camera.add(rig);
 scene.add(camera);
 
-function box(w, h, d, mat, x, y, z) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  m.position.set(x, y, z);
-  return m;
-}
-rig.add(box(0.12, 0.16, 0.1, plate, 0, -0.28, 0.02));
-rig.add(box(0.1, 0.08, 0.09, cloth, 0, -0.38, 0.02));
-const thumb = box(0.05, 0.08, 0.05, plate, 0.02, -0.24, 0.06);
-thumb.rotation.set(0.4, 0, 0.2);
-rig.add(thumb);
-rig.add(box(0.045, 0.92, 0.012, metal, 0, 0.52, 0));
-rig.add(box(0.012, 0.78, 0.014, steel, 0, 0.52, 0.001));
-rig.add(box(0.02, 0.06, 0.008, edge, 0, 0.96, 0));
-rig.add(box(0.28, 0.028, 0.04, guard, 0, 0.06, 0));
-rig.add(box(0.22, 0.012, 0.05, gold, 0, 0.06, 0));
-const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.032, 0.22, 10), leather);
-grip.position.set(0, -0.08, 0);
-rig.add(grip);
-const pommel = new THREE.Mesh(new THREE.SphereGeometry(0.038, 12, 10), gold);
-pommel.position.set(0, -0.2, 0);
-rig.add(pommel);
+const loader = new GLTFLoader();
+loader.load("./models/gauntlet.glb", (gltf) => {
+  const hand = gltf.scene;
+  hand.position.set(0.02, -0.34, 0.04);
+  hand.rotation.set(0.55, Math.PI, 0.15);
+  hand.scale.setScalar(1.25);
+  rig.add(hand);
+});
+loader.load("./models/fantasy-sword.glb", (gltf) => {
+  const sword = gltf.scene;
+  sword.position.set(0, 0.05, 0);
+  sword.rotation.set(-Math.PI / 2, 0, 0);
+  sword.scale.setScalar(1.05);
+  rig.add(sword);
+});
 
 let yaw = 0;
 let pitch = -0.08;
