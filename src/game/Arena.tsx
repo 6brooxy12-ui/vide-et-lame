@@ -199,138 +199,52 @@ function Rig() {
   );
 }
 
-function House({ x, z, rot = 0, w = 4.2, d = 3.4 }: { x: number; z: number; rot?: number; w?: number; d?: number }) {
-  return (
-    <group position={[x, 0, z]} rotation={[0, rot, 0]}>
-      <mesh position={[0, 1.5, 0]}>
-        <boxGeometry args={[w, 3, d]} />
-        <meshStandardMaterial color="#cbb89a" roughness={0.9} />
-      </mesh>
-      <mesh position={[0, 3.15, 0]} rotation={[0, 0, 0]}>
-        <coneGeometry args={[w * 0.72, 1.6, 4]} />
-        <meshStandardMaterial color="#6e2c24" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 1.15, d / 2 + 0.02]}>
-        <boxGeometry args={[0.7, 1.5, 0.08]} />
-        <meshStandardMaterial color="#3a2418" />
-      </mesh>
-      <mesh position={[-0.9, 1.7, d / 2 + 0.02]}>
-        <boxGeometry args={[0.55, 0.7, 0.06]} />
-        <meshStandardMaterial color="#f0c56e" emissive="#a86a22" emissiveIntensity={0.35} />
-      </mesh>
-      {[ -w / 2, w / 2 ].map((bx) => (
-        <mesh key={bx} position={[bx, 1.5, 0]}>
-          <boxGeometry args={[0.18, 3, d + 0.05]} />
-          <meshStandardMaterial color="#4a301c" />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function Torch({ position }: { position: [number, number, number] }) {
-  return (
-    <group position={position}>
-      <mesh position={[0, 0.7, 0]}>
-        <cylinderGeometry args={[0.06, 0.08, 1.5, 6]} />
-        <meshStandardMaterial color="#3a2a1c" />
-      </mesh>
-      <mesh position={[0, 1.55, 0]}>
-        <sphereGeometry args={[0.12, 10, 8]} />
-        <meshStandardMaterial color="#ffb15a" emissive="#ff6a1a" emissiveIntensity={2.2} />
-      </mesh>
-      <pointLight position={[0, 1.7, 0]} intensity={8} distance={9} color="#ff7a3a" />
-    </group>
-  );
+function Prop({
+  url,
+  position,
+  rotation = [0, 0, 0],
+  scale = 1,
+}: {
+  url: string;
+  position: [number, number, number];
+  rotation?: [number, number, number];
+  scale?: number;
+}) {
+  const gltf = useGLTF(url);
+  const obj = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+  return <primitive object={obj} position={position} rotation={rotation} scale={scale} />;
 }
 
 function World() {
-  const stones = useRef<THREE.InstancedMesh>(null);
-  useEffect(() => {
-    const mesh = stones.current;
-    if (!mesh) return;
-    const dummy = new THREE.Object3D();
-    let i = 0;
-    for (let z = -10; z <= 8; z += 0.62) {
-      for (let x = -10; x <= 10; x += 0.62) {
-        const jx = ((x * 13 + z * 7) % 5) * 0.03;
-        dummy.position.set(x + jx, 0.03, z + ((z * 3) % 4) * 0.02);
-        dummy.rotation.set(Math.PI / 2, 0, x * 0.4 + z);
-        dummy.scale.set(0.34, 0.28, 0.05);
-        dummy.updateMatrix();
-        mesh.setMatrixAt(i++, dummy.matrix);
-        if (i >= 700) break;
-      }
-      if (i >= 700) break;
-    }
-    mesh.count = i;
-    mesh.instanceMatrix.needsUpdate = true;
-  }, []);
-
   return (
     <>
-      <color attach="background" args={["#14110e"]} />
-      <fog attach="fog" args={["#14110e", 12, 42]} />
-      <ambientLight intensity={0.16} />
-      <hemisphereLight args={["#8aa0c0", "#3a2a1c", 0.35]} />
-      <directionalLight position={[-8, 14, 6]} intensity={0.45} color="#b7c7e6" />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-        <circleGeometry args={[28, 40]} />
-        <meshStandardMaterial color="#3a342c" roughness={1} />
+      <color attach="background" args={["#100e0c"]} />
+      <fog attach="fog" args={["#100e0c", 18, 70]} />
+      <ambientLight intensity={0.28} />
+      <hemisphereLight args={["#9aafc8", "#3a2a1c", 0.45]} />
+      <directionalLight position={[-12, 18, 8]} intensity={0.7} color="#d5e2f5" />
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[60, 48]} />
+        <meshStandardMaterial color="#3d4634" roughness={1} />
       </mesh>
-      <instancedMesh ref={stones} args={[undefined, undefined, 700]}>
-        <cylinderGeometry args={[1, 0.92, 1, 5]} />
-        <meshStandardMaterial color="#6a6458" roughness={0.95} />
-      </instancedMesh>
-      {[-12, 12].map((x) => (
-        <mesh key={x} position={[x, 1.6, 0]}>
-          <boxGeometry args={[1.1, 3.2, 26]} />
-          <meshStandardMaterial color="#7a7368" roughness={0.92} />
-        </mesh>
+      <Prop url="/models/castle.glb" position={[0, 0, -42]} />
+      <Prop url="/models/stone-house.glb" position={[-16, 0, -10]} rotation={[0, 0.5, 0]} />
+      <Prop url="/models/timber-frame-house.glb" position={[15, 0, -8]} rotation={[0, -0.6, 0]} />
+      <Prop url="/models/thatched-cottage.glb" position={[-18, 0, 10]} rotation={[0, 1.1, 0]} />
+      <Prop url="/models/blacksmith-forge.glb" position={[14, 0, 9]} rotation={[0, -1.4, 0]} />
+      <Prop url="/models/wooden-watchtower.glb" position={[-22, 0, -1]} rotation={[0, 0.3, 0]} />
+      <Prop url="/models/tournament-stand.glb" position={[0, 0, 16]} rotation={[0, Math.PI, 0]} />
+      <Prop url="/models/ballista.glb" position={[6, 0.5, -3]} rotation={[0, -0.4, 0]} />
+      <Prop url="/models/catapult.glb" position={[-7, 0.45, 2]} rotation={[0, 0.8, 0]} />
+      {[-8, -4, 0, 4, 8].map((z) => (
+        <Prop key={`l${z}`} url="/models/wooden-palisade.glb" position={[-24, 0, z]} rotation={[0, Math.PI / 2, 0]} />
       ))}
-      <mesh position={[0, 1.8, -12]}>
-        <boxGeometry args={[26, 3.6, 1.2]} />
-        <meshStandardMaterial color="#7a7368" roughness={0.92} />
-      </mesh>
-      <mesh position={[0, 2.4, -12]}>
-        <boxGeometry args={[3.2, 2.2, 1.4]} />
-        <meshStandardMaterial color="#5c564c" />
-      </mesh>
-      {Array.from({ length: 8 }, (_, i) => -10 + i * 3).map((x) => (
-        <mesh key={x} position={[x, 3.5, -12]}>
-          <boxGeometry args={[1.1, 0.7, 1.3]} />
-          <meshStandardMaterial color="#6d665c" />
-        </mesh>
+      {[-8, -4, 0, 4, 8].map((z) => (
+        <Prop key={`r${z}`} url="/models/wooden-palisade.glb" position={[24, 0, z]} rotation={[0, -Math.PI / 2, 0]} />
       ))}
-      <House x={-7.5} z={-7} rot={0.2} />
-      <House x={7.2} z={-6.5} rot={-0.4} w={5} />
-      <House x={-8} z={4.5} rot={1.1} w={3.6} d={3} />
-      <House x={8.2} z={5} rot={-1.2} />
-      <group position={[2.4, 0, 3.2]}>
-        <mesh position={[0, 0.45, 0]}>
-          <cylinderGeometry args={[0.9, 1.05, 0.9, 10]} />
-          <meshStandardMaterial color="#6d675d" />
-        </mesh>
-        <mesh position={[0, 1.15, 0]}>
-          <cylinderGeometry args={[0.18, 0.22, 0.7, 8]} />
-          <meshStandardMaterial color="#3d2c1e" />
-        </mesh>
-        <mesh position={[0, 1.35, 0]} rotation={[0.2, 0, 0.4]}>
-          <boxGeometry args={[1.3, 0.08, 0.12]} />
-          <meshStandardMaterial color="#5a4030" />
-        </mesh>
-      </group>
-      {[[-4, 1.2, -3], [5, 1.2, 1.5], [-2, 1.2, 6], [3.5, 1.2, -5], [-6, 1.2, -1]].map((p, i) => (
-        <Torch key={i} position={p as [number, number, number]} />
-      ))}
-      <mesh position={[0, 0.35, -4]} rotation={[0, 0.4, 0]}>
-        <boxGeometry args={[1.6, 0.7, 0.8]} />
-        <meshStandardMaterial color="#5a3a22" />
-      </mesh>
-      <mesh position={[0.9, 0.55, -3.6]}>
-        <cylinderGeometry args={[0.28, 0.32, 0.9, 8]} />
-        <meshStandardMaterial color="#6a4a2a" />
-      </mesh>
+      <pointLight position={[-14, 3, 8]} intensity={18} distance={16} color="#ff7a3a" />
+      <pointLight position={[14, 3, 8]} intensity={14} distance={14} color="#ff9340" />
+      <pointLight position={[0, 8, -30]} intensity={10} distance={30} color="#ffb060" />
     </>
   );
 }
