@@ -29,48 +29,109 @@ const hintEl = document.getElementById("hint");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("#0c0e12");
-scene.fog = new THREE.Fog("#0c0e12", 6, 28);
-const camera = new THREE.PerspectiveCamera(90, 1, 0.05, 60);
+scene.background = new THREE.Color("#14110e");
+scene.fog = new THREE.Fog("#14110e", 12, 42);
+const camera = new THREE.PerspectiveCamera(78, 1, 0.05, 80);
 camera.position.set(0, 1.65, 0);
 camera.rotation.order = "YXZ";
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-const sun = new THREE.DirectionalLight(0xf0e2c8, 1.35);
-sun.position.set(4, 8, 2);
-scene.add(sun);
-const fire = new THREE.PointLight(0xff6a2a, 6, 10);
-fire.position.set(-3.2, 1.1, -4);
-scene.add(fire);
+scene.add(new THREE.AmbientLight(0xffffff, 0.16));
+scene.add(new THREE.HemisphereLight(0x8aa0c0, 0x3a2a1c, 0.35));
+const moon = new THREE.DirectionalLight(0xb7c7e6, 0.45);
+moon.position.set(-8, 14, 6);
+scene.add(moon);
 
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(80, 80),
-  new THREE.MeshStandardMaterial({ color: 0x16181c, roughness: 1 }),
+const stone = new THREE.MeshStandardMaterial({ color: 0x6a6458, roughness: 0.95 });
+const wallMat = new THREE.MeshStandardMaterial({ color: 0x7a7368, roughness: 0.92 });
+const plaster = new THREE.MeshStandardMaterial({ color: 0xcbb89a, roughness: 0.9 });
+const timber = new THREE.MeshStandardMaterial({ color: 0x4a301c, roughness: 0.8 });
+const roof = new THREE.MeshStandardMaterial({ color: 0x6e2c24, roughness: 0.85 });
+const dirt = new THREE.Mesh(
+  new THREE.CircleGeometry(28, 40),
+  new THREE.MeshStandardMaterial({ color: 0x3a342c, roughness: 1 }),
 );
-ground.rotation.x = -Math.PI / 2;
-scene.add(ground);
-scene.add(new THREE.GridHelper(40, 40, 0x2a241c, 0x1c1e22));
+dirt.rotation.x = -Math.PI / 2;
+scene.add(dirt);
 
-for (const x of [-6, -2, 2, 6]) {
-  const post = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.08, 0.1, 2.8, 8),
-    new THREE.MeshStandardMaterial({ color: 0x2c241c, roughness: 0.9 }),
-  );
-  post.position.set(x, 1.4, -8);
-  scene.add(post);
+const cobble = new THREE.InstancedMesh(new THREE.CylinderGeometry(1, 0.92, 1, 5), stone, 700);
+const dummy = new THREE.Object3D();
+let n = 0;
+for (let z = -10; z <= 8 && n < 700; z += 0.62) {
+  for (let x = -10; x <= 10 && n < 700; x += 0.62) {
+    dummy.position.set(x + ((x * 13 + z * 7) % 5) * 0.03, 0.03, z);
+    dummy.rotation.set(Math.PI / 2, 0, x * 0.4 + z);
+    dummy.scale.set(0.34, 0.28, 0.05);
+    dummy.updateMatrix();
+    cobble.setMatrixAt(n++, dummy.matrix);
+  }
 }
-const brazier = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.35, 0.4, 0.7, 10),
-  new THREE.MeshStandardMaterial({ color: 0x3a2a22, roughness: 0.8 }),
-);
-brazier.position.set(-3.2, 0.35, -4);
-scene.add(brazier);
-const flame = new THREE.Mesh(
-  new THREE.SphereGeometry(0.18, 12, 10),
-  new THREE.MeshStandardMaterial({ color: 0xff7a33, emissive: 0xff4a10, emissiveIntensity: 2 }),
-);
-flame.position.set(-3.2, 0.85, -4);
-scene.add(flame);
+cobble.count = n;
+cobble.instanceMatrix.needsUpdate = true;
+scene.add(cobble);
+
+function wall(x, y, z, w, h, d) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+  m.position.set(x, y, z);
+  scene.add(m);
+}
+wall(-12, 1.6, 0, 1.1, 3.2, 26);
+wall(12, 1.6, 0, 1.1, 3.2, 26);
+wall(0, 1.8, -12, 26, 3.6, 1.2);
+wall(0, 2.4, -12, 3.2, 2.2, 1.4);
+for (let i = 0; i < 8; i++) wall(-10 + i * 3, 3.5, -12, 1.1, 0.7, 1.3);
+
+function house(x, z, rot, w, d) {
+  const g = new THREE.Group();
+  g.position.set(x, 0, z);
+  g.rotation.y = rot;
+  const body = new THREE.Mesh(new THREE.BoxGeometry(w, 3, d), plaster);
+  body.position.y = 1.5;
+  const top = new THREE.Mesh(new THREE.ConeGeometry(w * 0.72, 1.6, 4), roof);
+  top.position.y = 3.15;
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.5, 0.08), timber);
+  door.position.set(0, 1.15, d / 2 + 0.02);
+  const win = new THREE.Mesh(
+    new THREE.BoxGeometry(0.55, 0.7, 0.06),
+    new THREE.MeshStandardMaterial({ color: 0xf0c56e, emissive: 0xa86a22, emissiveIntensity: 0.35 }),
+  );
+  win.position.set(-0.9, 1.7, d / 2 + 0.02);
+  g.add(body, top, door, win);
+  for (const bx of [-w / 2, w / 2]) {
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(0.18, 3, d + 0.05), timber);
+    beam.position.set(bx, 1.5, 0);
+    g.add(beam);
+  }
+  scene.add(g);
+}
+house(-7.5, -7, 0.2, 4.2, 3.4);
+house(7.2, -6.5, -0.4, 5, 3.4);
+house(-8, 4.5, 1.1, 3.6, 3);
+house(8.2, 5, -1.2, 4.2, 3.4);
+
+function torch(x, y, z) {
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.5, 6), timber);
+  post.position.set(x, y + 0.7, z);
+  const flame = new THREE.Mesh(
+    new THREE.SphereGeometry(0.12, 10, 8),
+    new THREE.MeshStandardMaterial({ color: 0xffb15a, emissive: 0xff6a1a, emissiveIntensity: 2.2 }),
+  );
+  flame.position.set(x, y + 1.55, z);
+  const light = new THREE.PointLight(0xff7a3a, 8, 9);
+  light.position.set(x, y + 1.7, z);
+  scene.add(post, flame, light);
+}
+[[-4, 0, -3], [5, 0, 1.5], [-2, 0, 6], [3.5, 0, -5], [-6, 0, -1]].forEach((p) => torch(...p));
+
+const well = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.05, 0.9, 10), wallMat);
+well.position.set(2.4, 0.45, 3.2);
+scene.add(well);
+const crate = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.7, 0.8), timber);
+crate.position.set(0, 0.35, -4);
+crate.rotation.y = 0.4;
+scene.add(crate);
+const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.9, 8), new THREE.MeshStandardMaterial({ color: 0x6a4a2a }));
+barrel.position.set(0.9, 0.55, -3.6);
+scene.add(barrel);
 
 const rig = new THREE.Group();
 camera.add(rig);
@@ -92,7 +153,7 @@ loader.load("./models/gauntlet.glb", (gltf) => {
 loader.load("./models/fantasy-sword.glb", (gltf) => {
   const sword = gltf.scene;
   sword.position.set(0, 0.42, 0);
-  sword.rotation.set(-Math.PI / 2, 0, 0);
+  sword.rotation.set(Math.PI / 2, Math.PI, 0);
   sword.scale.setScalar(0.92);
   rig.add(sword);
 });
