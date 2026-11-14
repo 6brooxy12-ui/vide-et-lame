@@ -42,8 +42,8 @@ function Viewmodel() {
     <group>
       <primitive
         object={sword.scene}
-        position={[0, 0.42, 0]}
-        rotation={[Math.PI / 2, Math.PI, 0]}
+        position={[0, 0.18, 0]}
+        rotation={[-Math.PI / 2, Math.PI, 0]}
         scale={0.92}
       />
       <primitive object={lead} position={[0.07, -0.02, 0.05]} rotation={[1.15, Math.PI, 0.35]} scale={1.65} />
@@ -218,14 +218,19 @@ function Prop({
 function World() {
   return (
     <>
-      <color attach="background" args={["#100e0c"]} />
-      <fog attach="fog" args={["#100e0c", 18, 70]} />
-      <ambientLight intensity={0.28} />
-      <hemisphereLight args={["#9aafc8", "#3a2a1c", 0.45]} />
-      <directionalLight position={[-12, 18, 8]} intensity={0.7} color="#d5e2f5" />
+      <color attach="background" args={["#e7b07a"]} />
+      <fog attach="fog" args={["#e7b07a", 24, 80]} />
+      <ambientLight intensity={0.55} />
+      <hemisphereLight args={["#ffd2a4", "#5f8a48", 0.7]} />
+      <directionalLight position={[18, 10, -12]} intensity={1.8} color="#ffb15a" />
+      <directionalLight position={[-14, 16, 18]} intensity={0.45} color="#8eb4ff" />
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[60, 48]} />
-        <meshStandardMaterial color="#3d4634" roughness={1} />
+        <planeGeometry args={[200, 200]} />
+        <meshStandardMaterial color="#6d8f4a" roughness={1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 2]}>
+        <planeGeometry args={[6, 40]} />
+        <meshStandardMaterial color="#c6a56e" roughness={0.95} />
       </mesh>
       <Prop url="/models/castle.glb" position={[0, 0, -42]} />
       <Prop url="/models/stone-house.glb" position={[-16, 0, -10]} rotation={[0, 0.5, 0]} />

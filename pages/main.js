@@ -29,26 +29,36 @@ const hintEl = document.getElementById("hint");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("#14110e");
-scene.fog = new THREE.Fog("#14110e", 12, 42);
+scene.background = new THREE.Color("#c96b62");
+scene.fog = new THREE.Fog("#e7b07a", 24, 80);
 const camera = new THREE.PerspectiveCamera(78, 1, 0.05, 80);
 camera.position.set(0, 1.65, 0);
 camera.rotation.order = "YXZ";
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.16));
-scene.add(new THREE.HemisphereLight(0x8aa0c0, 0x3a2a1c, 0.35));
-const moon = new THREE.DirectionalLight(0xb7c7e6, 0.45);
-moon.position.set(-8, 14, 6);
-scene.add(moon);
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+scene.add(new THREE.HemisphereLight(0xffd2a4, 0x5f8a48, 0.7));
+const sun = new THREE.DirectionalLight(0xffb15a, 1.8);
+sun.position.set(18, 10, -12);
+scene.add(sun);
+const rim = new THREE.DirectionalLight(0x8eb4ff, 0.45);
+rim.position.set(-14, 16, 18);
+scene.add(rim);
 
 const dirt = new THREE.Mesh(
-  new THREE.CircleGeometry(60, 48),
-  new THREE.MeshStandardMaterial({ color: 0x3d4634, roughness: 1 }),
+  new THREE.PlaneGeometry(200, 200),
+  new THREE.MeshStandardMaterial({ color: 0x6d8f4a, roughness: 1 }),
 );
 dirt.rotation.x = -Math.PI / 2;
 scene.add(dirt);
-scene.background = new THREE.Color("#100e0c");
-scene.fog = new THREE.Fog("#100e0c", 18, 70);
+const path = new THREE.Mesh(
+  new THREE.PlaneGeometry(6, 40),
+  new THREE.MeshStandardMaterial({ color: 0xc6a56e, roughness: 0.95 }),
+);
+path.rotation.x = -Math.PI / 2;
+path.position.set(0, 0.02, 2);
+scene.add(path);
+scene.background = new THREE.Color("#c96b62");
+scene.fog = new THREE.Fog("#e7b07a", 24, 80);
 
 const loader = new GLTFLoader();
 function prop(file, x, y, z, rotY = 0, yLift = 0) {
@@ -97,8 +107,8 @@ weaponLoader.load("./models/gauntlet.glb", (gltf) => {
 });
 weaponLoader.load("./models/fantasy-sword.glb", (gltf) => {
   const sword = gltf.scene;
-  sword.position.set(0, 0.42, 0);
-  sword.rotation.set(Math.PI / 2, Math.PI, 0);
+  sword.position.set(0, 0.18, 0);
+  sword.rotation.set(-Math.PI / 2, Math.PI, 0);
   sword.scale.setScalar(0.92);
   rig.add(sword);
 });
